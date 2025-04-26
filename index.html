@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>🎯 Number Guessing Game</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+        font-family: "Poppins", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .frame {
+        background: white;
+        padding: 30px 20px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        animation: fadeIn 0.8s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      h1,
+      h2 {
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 1.5rem;
+      }
+      select,
+      input[type="number"] {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        font-size: 1rem;
+        border: 2px solid #66a6ff;
+        border-radius: 10px;
+        outline: none;
+        transition: border-color 0.3s;
+      }
+      select:focus,
+      input[type="number"]:focus {
+        border-color: #4b9eff;
+      }
+      button {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        font-size: 1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+      }
+      button:active {
+        transform: scale(0.98);
+      }
+      #startButton {
+        background: #4caf50;
+        color: white;
+      }
+      #startButton:hover {
+        background: #45a049;
+      }
+      #guessButton {
+        background: #2196f3;
+        color: white;
+      }
+      #guessButton:hover {
+        background: #1976d2;
+      }
+      #restartButton {
+        background: #ff5722;
+        color: white;
+      }
+      #restartButton:hover {
+        background: #e64a19;
+      }
+      .hidden {
+        display: none;
+      }
+      #result {
+        margin-top: 15px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        min-height: 30px;
+      }
+      #attemptsLeft {
+        margin-top: 10px;
+        font-size: 1rem;
+        color: #777;
+      }
+      @media (max-width: 480px) {
+        h1,
+        h2 {
+          font-size: 1.2rem;
+        }
+        .frame {
+          padding: 25px 15px;
+          border-radius: 15px;
+        }
+        select,
+        input[type="number"],
+        button {
+          font-size: 0.95rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mainMenu" class="frame">
+      <h1>🎯 Number Guessing Game</h1>
+      <h2>Select Difficulty:</h2>
+      <select id="difficulty">
+        <option value="Medium">Medium</option>
+        <option value="Easy">Easy</option>
+        <option value="Hard">Hard</option>
+      </select>
+      <button id="startButton">Start Game</button>
+    </div>
+
+    <div id="gameFrame" class="frame hidden">
+      <h1>🎯 Number Guessing Game</h1>
+      <h2>Guess a number between 1 and 100</h2>
+      <input type="number" id="guessInput" placeholder="Enter your guess" />
+      <button id="guessButton">Guess</button>
+      <div id="result"></div>
+      <div id="attemptsLeft"></div>
+      <button id="restartButton" class="hidden">Restart Game</button>
+    </div>
+
+    <script>
+      let numberToGuess = 0;
+      let attemptsLeft = 0;
+      let maxAttempts = 0;
+
+      const mainMenu = document.getElementById("mainMenu");
+      const gameFrame = document.getElementById("gameFrame");
+      const startButton = document.getElementById("startButton");
+      const guessButton = document.getElementById("guessButton");
+      const restartButton = document.getElementById("restartButton");
+      const difficultySelect = document.getElementById("difficulty");
+      const guessInput = document.getElementById("guessInput");
+      const result = document.getElementById("result");
+      const attemptsLabel = document.getElementById("attemptsLeft");
+
+      function startGame() {
+        mainMenu.classList.add("hidden");
+        gameFrame.classList.remove("hidden");
+        restartButton.classList.add("hidden");
+        guessButton.disabled = false;
+        guessInput.value = "";
+        result.textContent = "";
+        result.style.color = "#333";
+
+        const difficulty = difficultySelect.value;
+        if (difficulty === "Easy") {
+          maxAttempts = 15;
+        } else if (difficulty === "Medium") {
+          maxAttempts = 10;
+        } else if (difficulty === "Hard") {
+          maxAttempts = 5;
+        }
+
+        numberToGuess = Math.floor(Math.random() * 100) + 1;
+        attemptsLeft = maxAttempts;
+        updateAttempts();
+      }
+
+      function updateAttempts() {
+        attemptsLabel.textContent = `Attempts Left: ${attemptsLeft}`;
+      }
+
+      function checkGuess() {
+        let guess = guessInput.value.trim();
+        if (guess === "" || isNaN(guess)) {
+          result.textContent = "⚠️ Please enter a valid number!";
+          result.style.color = "red";
+          return;
+        }
+
+        guess = parseInt(guess, 10);
+        attemptsLeft--;
+        updateAttempts();
+
+        if (guess < numberToGuess) {
+          result.textContent = "📉 Too low!";
+          result.style.color = "blue";
+        } else if (guess > numberToGuess) {
+          result.textContent = "📈 Too high!";
+          result.style.color = "orange";
+        } else {
+          result.textContent = "🎉 Correct! You win!";
+          result.style.color = "green";
+          guessButton.disabled = true;
+          restartButton.classList.remove("hidden");
+          return;
+        }
+
+        if (attemptsLeft === 0) {
+          result.textContent = `❌ Game Over! Number was ${numberToGuess}`;
+          result.style.color = "red";
+          guessButton.disabled = true;
+          restartButton.classList.remove("hidden");
+        }
+      }
+
+      function restartGame() {
+        gameFrame.classList.add("hidden");
+        mainMenu.classList.remove("hidden");
+      }
+
+      startButton.addEventListener("click", startGame);
+      guessButton.addEventListener("click", checkGuess);
+      restartButton.addEventListener("click", restartGame);
+    </script>
+  </body>
+</html>
